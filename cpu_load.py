@@ -1,15 +1,21 @@
+import argparse
 import nagiosplugin
+import subprocess
 
-class cpu_check(nagiosplugin.Resource):
+# 
+# https://nagiosplugin.readthedocs.io/en/stable/tutorial/check_load.html
+#
+
+class Load(nagiosplugin Resource):
+
+    def __init__(self, percpu=False):
+        self.percpu = percpu
+
+    def cpus(self):
+        cpus = int(subprocess.check_output(['nproc']))
+        return cpus
 
     def probe(self):
-        return [nagiosplugin.Metric('world', True, context='null')]
+        with open('/proc/loadavg') as loadavg:
+            load = loadavg.readline().split()[0:3]
 
-
-def main():
-    check = nagiosplugin.Check(cpu_check())
-    check.main()
-
-
-if __name__=='__main__':
-    main()
